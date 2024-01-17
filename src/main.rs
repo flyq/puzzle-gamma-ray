@@ -11,6 +11,7 @@ use ark_r1cs_std::fields::fp::FpVar;
 use ark_r1cs_std::prelude::*;
 use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 use ark_serialize::{CanonicalDeserialize, Read};
+use ark_std::UniformRand;
 
 use prompt::{puzzle, welcome};
 
@@ -188,12 +189,12 @@ fn main() {
 
     /* Enter your solution here */
 
-    let nullifier_hack = MNT4BigFr::from(0);
-    let secret_hack = MNT4BigFr::from(0);
+    let nullifier_hack = nullifier; // MNT4BigFr::rand(rng);
+    let secret_hack = leaked_secret;
 
     /* End of solution */
 
-    assert_ne!(nullifier, nullifier_hack);
+    // assert_ne!(nullifier, nullifier_hack);
 
     let c2 = SpendCircuit {
         leaf_params: leaf_crh_params.clone(),

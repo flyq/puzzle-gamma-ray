@@ -1,5 +1,5 @@
 use ark_ec::AffineRepr;
-use ark_ff::PrimeField;
+use ark_ff::{BigInt, PrimeField};
 use ark_mnt4_753::{Fr as MNT4BigFr, MNT4_753};
 use ark_mnt6_753::G1Affine;
 use ark_mnt6_753::{constraints::G1Var, Fr as MNT6BigFr};
@@ -11,7 +11,6 @@ use ark_r1cs_std::fields::fp::FpVar;
 use ark_r1cs_std::prelude::*;
 use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 use ark_serialize::{CanonicalDeserialize, Read};
-use ark_std::UniformRand;
 
 use prompt::{puzzle, welcome};
 
@@ -105,11 +104,15 @@ impl ConstraintSynthesizer<ConstraintF> for SpendCircuit {
 
         let nullifier_in_circuit =
             <LeafHG as CRHSchemeGadget<LeafH, _>>::evaluate(&leaf_crh_params_var, &[secret])?;
+
+        println!("nullifier_in_circuit: {:?}", nullifier_in_circuit.value());
+
         nullifier_in_circuit.enforce_equal(&nullifier)?;
 
         let base = G1Var::new_constant(ark_relations::ns!(cs, "base"), G1Affine::generator())?;
         let pk = base.scalar_mul_le(secret_bits.iter())?.to_affine()?;
 
+        println!("x: {}", pk.x.value().unwrap());
         // Allocate Leaf
         let leaf_g: Vec<_> = vec![pk.x];
 
@@ -189,12 +192,27 @@ fn main() {
 
     /* Enter your solution here */
 
-    let nullifier_hack = nullifier; // MNT4BigFr::rand(rng);
-    let secret_hack = leaked_secret;
+    let zero = MNT4BigFr::from(0);
+
+    let secret_hack = zero - leaked_secret.clone();
+    let nullifier_hack = MNT4BigFr::from(BigInt([
+        17444566364850873091,
+        6515124861751126997,
+        6054420791250307128,
+        10248758139349511174,
+        10467109597137768626,
+        9276047080038930583,
+        12420466862586292870,
+        7465456837140013736,
+        16227311374461761703,
+        13001416495604732306,
+        14770645034585524409,
+        396450874496130,
+    ]));
 
     /* End of solution */
 
-    // assert_ne!(nullifier, nullifier_hack);
+    assert_ne!(nullifier, nullifier_hack);
 
     let c2 = SpendCircuit {
         leaf_params: leaf_crh_params.clone(),
@@ -206,8 +224,9 @@ fn main() {
     };
 
     let proof = Groth16::<MNT4_753>::prove(&pk, c2.clone(), rng).unwrap();
-
-    assert!(Groth16::<MNT4_753>::verify(&vk, &vec![root, nullifier_hack], &proof).unwrap());
+    let res = Groth16::<MNT4_753>::verify(&vk, &vec![root, nullifier_hack], &proof);
+    println!("res: {:?}", res);
+    assert!(res.unwrap());
 }
 
 const PUZZLE_DESCRIPTION: &str = r"

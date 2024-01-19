@@ -192,22 +192,24 @@ fn main() {
 
     /* Enter your solution here */
 
-    let zero = MNT4BigFr::from(0);
+    let zero_mnt6 = MNT6BigFr::from(0);
+    let leaked_secret_mnt6 = MNT6BigFr::from(leaked_secret.into_bigint());
+    let secret_hack_mnt6 = zero_mnt6 - leaked_secret_mnt6.clone();
 
-    let secret_hack = zero - leaked_secret.clone();
+    let secret_hack = MNT4BigFr::from(secret_hack_mnt6.into_bigint());
     let nullifier_hack = MNT4BigFr::from(BigInt([
-        17444566364850873091,
-        6515124861751126997,
-        6054420791250307128,
-        10248758139349511174,
-        10467109597137768626,
-        9276047080038930583,
-        12420466862586292870,
-        7465456837140013736,
-        16227311374461761703,
-        13001416495604732306,
-        14770645034585524409,
-        396450874496130,
+        3973337740569432013,
+        13414245347258487558,
+        2397428639358863969,
+        9003710485710992633,
+        7549792233030202438,
+        12021247171312009477,
+        10014790687727384398,
+        10719001394312000749,
+        12147986067925283906,
+        7048510174634313048,
+        13041399962513988848,
+        81761383246681,
     ]));
 
     /* End of solution */

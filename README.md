@@ -80,7 +80,7 @@ In `SpendCircuit`, the only things we customize are `secret` and `nullifier`. So
 	.enforce_equal(&Boolean::constant(true))?;
 	```
 
-   1. It is required to use different `nullifier`, and the hidden condition is to use different `secret`.
+4. It is required to use different `nullifier`, and the hidden condition is to use different `secret`.
    ```rs
        assert_ne!(nullifier, nullifier_hack);
    ```
